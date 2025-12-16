@@ -39,6 +39,7 @@ class GZDoomLauncher {
             respawn: document.getElementById('respawn'),
             launchBtn: document.getElementById('launchBtn'),
 			downloadBat: document.getElementById('downloadBat'),
+			downloadList: document.getElementById('downloadList'),
             commandPreview: document.getElementById('commandPreview'),
             logOutput: document.getElementById('logOutput'),
             clearLog: document.getElementById('clearLog')
@@ -49,6 +50,9 @@ class GZDoomLauncher {
 		// In modalità web, mostra il bottone per scaricare il .BAT e precompila gzdoom.exe
 		if (!this.isElectron && this.elements.downloadBat) {
 			this.elements.downloadBat.style.display = 'inline-block';
+			if (this.elements.downloadList) {
+				this.elements.downloadList.style.display = 'inline-block';
+			}
 			if (!this.gzdoomPath) {
 				this.gzdoomPath = 'gzdoom.exe';
 				this.elements.gzdoomPath.value = this.gzdoomPath;
@@ -142,6 +146,11 @@ class GZDoomLauncher {
 		if (this.elements.downloadBat) {
 			this.elements.downloadBat.addEventListener('click', () => {
 				this.downloadBat();
+			});
+		}
+		if (this.elements.downloadList) {
+			this.elements.downloadList.addEventListener('click', () => {
+				this.downloadRequiredFilesList();
 			});
 		}
 
@@ -301,20 +310,52 @@ class GZDoomLauncher {
                     this.log(error.message, 'error');
                 }
             } else {
-                this.log('Nota: Questa è una versione web. Per lanciare GZDoom, copia e incolla il comando mostrato sopra nel terminale.', 'warning');
-				this.log('Suggerimento: puoi anche scaricare un file .BAT da eseguire nella cartella di GZDoom.', 'info');
-                
-                navigator.clipboard.writeText(this.elements.commandPreview.textContent).then(() => {
-                    this.log('Comando copiato negli appunti!', 'success');
-                }).catch(() => {
-                    this.log('Impossibile copiare il comando negli appunti', 'warning');
-                });
+				// Modalità Web: prova helper locale su 127.0.0.1, poi fallback a copia comando
+				const launched = await this.tryLaunchViaLocalHelper(this.gzdoomPath, args);
+				if (!launched) {
+					this.log('Nota: Helper locale non raggiungibile. Copia il comando e avvia manualmente.', 'warning');
+					navigator.clipboard.writeText(this.elements.commandPreview.textContent).then(() => {
+						this.log('Comando copiato negli appunti!', 'success');
+					}).catch(() => {
+						this.log('Impossibile copiare il comando negli appunti', 'warning');
+					});
+				}
             }
 
         } catch (error) {
             this.log(`Errore: ${error.message}`, 'error');
         }
     }
+
+	async tryLaunchViaLocalHelper(gzdoomPath, args) {
+		const controller = new AbortController();
+		const timeout = setTimeout(() => controller.abort(), 3000);
+		const helperUrl = 'http://127.0.0.1:18787/launch';
+		try {
+			const res = await fetch(helperUrl, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ gzdoomPath, args }),
+				signal: controller.signal
+			});
+			clearTimeout(timeout);
+			if (!res.ok) {
+				this.log(`Helper risponde con errore HTTP ${res.status}`, 'warning');
+				return false;
+			}
+			const data = await res.json().catch(() => ({}));
+			if (data && data.success) {
+				this.log('GZDoom avviato tramite helper locale.', 'success');
+				return true;
+			}
+			this.log('Helper locale ha risposto ma senza success.', 'warning');
+			return false;
+		} catch (e) {
+			clearTimeout(timeout);
+			this.log('Impossibile contattare l\'helper locale su 127.0.0.1:18787', 'warning');
+			return false;
+		}
+	}
 
 	generateWindowsBatch() {
 		// Genera contenuto .bat che esegue GZDoom dalla stessa cartella del .bat
@@ -350,6 +391,41 @@ class GZDoomLauncher {
 		document.body.removeChild(a);
 		URL.revokeObjectURL(url);
 		this.log('File .BAT generato e scaricato', 'success');
+	}
+
+	downloadRequiredFilesList() {
+		const lines = [];
+		lines.push('QualeDoom (Web) - Elenco file richiesti');
+		lines.push('');
+		lines.push('Istruzioni:');
+		lines.push('- Metti TUTTI i file elencati qui sotto nella stessa cartella del file .BAT e di gzdoom.exe.');
+		lines.push('- Se hai scelto un IWAD, assicurati che sia presente con il nome indicato.');
+		lines.push('- Poi esegui il file .BAT.');
+		lines.push('');
+		lines.push('Eseguibile GZDoom atteso:');
+		lines.push(`- ${this.gzdoomPath || 'gzdoom.exe'}`);
+		lines.push('');
+		lines.push('IWAD (se impostato):');
+		lines.push(`- ${this.elements.iwad && this.elements.iwad.value ? this.elements.iwad.value : '(Automatico - non specificato)'}`);
+		lines.push('');
+		lines.push('File WAD/PK3 selezionati:');
+		if (this.wadFiles.length === 0) {
+			lines.push('- (Nessuno)');
+		} else {
+			this.wadFiles.forEach(w => lines.push(`- ${w.name}`));
+		}
+
+		const content = lines.join('\r\n');
+		const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'ELENCO_FILE_DA_COPIARE.txt';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+		this.log('Elenco file (TXT) scaricato', 'success');
 	}
 
     log(message, type = 'info') {

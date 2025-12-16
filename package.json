@@ -1,0 +1,52 @@
+{
+  "name": "qualedoom",
+  "version": "1.0.0",
+  "description": "GZDoom Launcher - Carica e lancia i tuoi file WAD con GZDoom",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win",
+    "web-helper": "node web-launch-helper.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "doom",
+    "gzdoom",
+    "launcher",
+    "wad"
+  ],
+  "author": "Damiano",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^39.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.damiano.qualedoom",
+    "productName": "QualeDoom",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "node_modules/electron/**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "msi": {
+      "oneClick": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "QualeDoom"
+    }
+  }
+}
