@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuAleDoom</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 QuAleDoom</h1>
+            <p>Carica e lancia i tuoi file WAD con GZDoom</p>
+        </header>
+
+        <main>
+            <section class="gzdoom-section">
+                <h2>Percorso GZDoom</h2>
+                <div class="input-group">
+                    <input type="text" id="gzdoomPath" placeholder="Seleziona il percorso di gzdoom.exe">
+                    <button id="browseGzdoom" class="btn btn-secondary">Sfoglia</button>
+                </div>
+                <input type="file" id="gzdoomFile" accept=".exe" style="display: none;">
+            </section>
+
+            <section class="wad-section">
+                <h2>File WAD</h2>
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-content">
+                        <p>📁 Trascina qui i file WAD o clicca per selezionare</p>
+                        <button id="browseWads" class="btn btn-primary">Seleziona WAD</button>
+                    </div>
+                </div>
+                <input type="file" id="wadFiles" multiple accept=".wad,.pk3,.pk7" style="display: none;">
+                
+                <div class="wad-list" id="wadList">
+                    <h3>File WAD caricati:</h3>
+                    <ul id="wadItems"></ul>
+                </div>
+            </section>
+
+            <section class="options-section">
+                <h2>Opzioni di Lancio</h2>
+                <div class="options-grid">
+                    <div class="option-group">
+                        <label for="iwad">IWAD Base:</label>
+                        <select id="iwad">
+                            <option value="">Automatico</option>
+                            <option value="doom.wad">DOOM</option>
+                            <option value="doom2.wad">DOOM II</option>
+                            <option value="plutonia.wad">Final DOOM - Plutonia</option>
+                            <option value="tnt.wad">Final DOOM - TNT</option>
+                            <option value="heretic.wad">Heretic</option>
+                            <option value="hexen.wad">Hexen</option>
+                            <option value="strife1.wad">Strife</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label for="skill">Difficoltà:</label>
+                        <select id="skill">
+                            <option value="">Default</option>
+                            <option value="1">I'm Too Young to Die</option>
+                            <option value="2">Hey, Not Too Rough</option>
+                            <option value="3">Hurt Me Plenty</option>
+                            <option value="4">Ultra-Violence</option>
+                            <option value="5">Nightmare!</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="warp">Livello:</label>
+                        <input type="text" id="warp" placeholder="es. E1M1 o MAP01">
+                    </div>
+
+                    <div class="option-group">
+                        <label for="customArgs">Argomenti personalizzati:</label>
+                        <input type="text" id="customArgs" placeholder="-nomonsters -fast">
+                    </div>
+                </div>
+
+                <div class="checkboxes">
+                    <label><input type="checkbox" id="fullscreen"> Schermo intero</label>
+                    <label><input type="checkbox" id="nomonsters"> Nessun mostro</label>
+                    <label><input type="checkbox" id="fast"> Mostri veloci</label>
+                    <label><input type="checkbox" id="respawn"> Mostri respawn</label>
+                </div>
+            </section>
+
+            <section class="launch-section">
+                <button id="launchBtn" class="btn btn-launch" disabled>🚀 Lancia GZDoom</button>
+				<button id="downloadBat" class="btn btn-secondary" style="display: none;">💾 Scarica file .BAT (Windows)</button>
+                <div class="command-preview">
+                    <h3>Comando che verrà eseguito:</h3>
+                    <code id="commandPreview">Seleziona GZDoom e almeno un file WAD</code>
+                </div>
+            </section>
+
+            <section class="log-section">
+                <h2>Log</h2>
+                <div class="log-container">
+                    <pre id="logOutput">Pronto per il lancio...</pre>
+                </div>
+                <button id="clearLog" class="btn btn-secondary">Pulisci Log</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
