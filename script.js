@@ -68,14 +68,8 @@ class GZDoomLauncher {
                     this.log(`GZDoom selezionato: ${this.gzdoomPath}`);
                 }
             } else {
-				// In web, non possiamo ottenere il path assoluto. Chiediamo un nome/percorso logico oppure usiamo gzdoom.exe.
-				const value = prompt('Inserisci il nome del file di avvio (es: gzdoom.exe) o un percorso relativo:', this.elements.gzdoomPath.value || 'gzdoom.exe');
-				if (value !== null) {
-					this.gzdoomPath = value.trim() || 'gzdoom.exe';
-					this.elements.gzdoomPath.value = this.gzdoomPath;
-					this.updateUI();
-					this.log(`GZDoom impostato: ${this.gzdoomPath}`);
-				}
+				// In web, apriamo il file browser
+				this.elements.gzdoomFile.click();
             }
         });
 
