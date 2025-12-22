@@ -39,7 +39,6 @@ class GZDoomLauncher {
             respawn: document.getElementById('respawn'),
             launchBtn: document.getElementById('launchBtn'),
 			downloadBat: document.getElementById('downloadBat'),
-			downloadList: document.getElementById('downloadList'),
             commandPreview: document.getElementById('commandPreview'),
             logOutput: document.getElementById('logOutput'),
             clearLog: document.getElementById('clearLog')
@@ -50,9 +49,6 @@ class GZDoomLauncher {
 		// In modalità web, mostra il bottone per scaricare il .BAT e precompila gzdoom.exe
 		if (!this.isElectron && this.elements.downloadBat) {
 			this.elements.downloadBat.style.display = 'inline-block';
-			if (this.elements.downloadList) {
-				this.elements.downloadList.style.display = 'inline-block';
-			}
 			if (!this.gzdoomPath) {
 				this.gzdoomPath = 'gzdoom.exe';
 				this.elements.gzdoomPath.value = this.gzdoomPath;
@@ -146,11 +142,6 @@ class GZDoomLauncher {
 		if (this.elements.downloadBat) {
 			this.elements.downloadBat.addEventListener('click', () => {
 				this.downloadBat();
-			});
-		}
-		if (this.elements.downloadList) {
-			this.elements.downloadList.addEventListener('click', () => {
-				this.downloadRequiredFilesList();
 			});
 		}
 

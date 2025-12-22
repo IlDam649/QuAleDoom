@@ -1,21 +1,28 @@
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 let mainWindow;
 
 function createWindow() {
-    mainWindow = new BrowserWindow({
+    const iconPath = path.join(__dirname, 'assets', 'icon.png');
+    const windowOptions = {
         width: 1200,
         height: 900,
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false,
-            enableRemoteModule: true
+            contextIsolation: false
         },
-        icon: path.join(__dirname, 'assets', 'icon.png'),
         title: 'QuAleDoom - GZDoom Launcher'
-    });
+    };
+    
+    // Aggiungi l'icona solo se esiste
+    if (fs.existsSync(iconPath)) {
+        windowOptions.icon = iconPath;
+    }
+    
+    mainWindow = new BrowserWindow(windowOptions);
 
     mainWindow.loadFile('index.html');
 
